@@ -7,6 +7,9 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/article.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+
     <link rel="stylesheet" href="stylesheets/github-light.css">
     <meta name="viewport" content="width=device-width">
     <!--[if lt IE 9]>
@@ -47,7 +50,7 @@
 
        	</br></br>
 
-       	<img src="images/consumer-producer.jpg" />
+       	<img src="images/interesting-consumer.jpg" />
        	<label>Взято из - <a href="https://www.manning.com/books/akka-in-action">Akka in Action</a></label>
 
        	</br></br>
@@ -56,8 +59,207 @@
 
 		</br></br>
 
-       	Дальше автор утверждает что все это очень напоминает акторы. И действительно есть что то. Но вот дело в том что логику общения между Consumer-ом и Producer-ом, где Consumer говорит Producer-у слать ли ему еще, или он занять придется реализовывать самостоятельно. Логично. Давайте попробуем.
+       	Дальше автор утверждает что все это очень напоминает акторы. И действительно есть что то. Но вот дело в том что логику общения между Consumer-ом и Producer-ом, где Consumer говорит Producer-у сколько элементов он может обработать при ограниченном количестве памяти, придется реализовывать самостоятельно. Логично. Давайте попробуем.
 
+		</br></br></p>
+
+		<h3>Делаем свой Producer-Processing Node-Consumer на основе акторов</h3>
+		<p>
+
+       	Представим следующую задачу, есть файл, содержащий <a href="https://sherlock-holm.es/stories/plain-text/cano.txt">все сочинения Артура Конана Дойля</a>. <b>Producer</b> читает данные по строчно из файла, и отдает их в processing node если его об этом просят. 
+
+       	</br></br>
+
+       	Так как в streaming штуках все идет от того занят ли сonsumer, то выдумывать задачу будем начиная от нужд сonsumer-а. Представим <b>Consumer</b> запрашивает, 10 строчек оканчивающихся вопросительным знаком за раз и не более, как только он получит их он даст сигнал producer-у что хватит, и потратит 2 секунды что бы показать их пользователю, после чего даст сигнал producer-у заново воспроизводить данные из источника.
+
+       	<b>Processing Node</b> будет получать данные(построчно) от producer-а и фильтровать в них вопросительные предложения.
+
+
+       	</br> </br>
+       	На самом деле я не написал этот код за один день, первую реализацию я выкинул как это часто бывает. Начал писать тесты, потом код, и в итоге в какой то момент перестал писать тесты и начил дебажить println-ами, закончилось плохо я все выкинул. <b>DONT DO THAT!</b>.
+
+		</p>
+       	<h3>Что же получилось</h3> 
+       	<p>
+       	Если вам удобнее склонить проект и просто запустить и посмотреть в любимой IDE вы можете найти его <a href="https://github.com/vooolll/stream-processing-via-actor">тут</a>.
+
+       	<br><br>
+
+       Для моего streaming приложения я включил акторов, тест кит из акки, и scalatest вещи без которых я считаю нельзя писать серъезные вещи(а мы то хотим). 
+
+       <br><br>
+
+
+
+		<b>build.sbt</b>
+		</p>
+
+		<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">val</span> akkaVersion <span style="color: #008800; font-weight: bold">=</span> <span style="background-color: #fff0f0">&quot;2.4.17&quot;</span>
+
+libraryDependencies <span style="color: #333333">++=</span> <span style="color: #BB0066; font-weight: bold">Seq</span><span style="color: #333333">(</span>
+  <span style="background-color: #fff0f0">&quot;com.typesafe.akka&quot;</span> <span style="color: #333333">%%</span> <span style="background-color: #fff0f0">&quot;akka-actor&quot;</span> <span style="color: #333333">%</span> akkaVersion<span style="color: #333333">,</span>
+  <span style="background-color: #fff0f0">&quot;com.typesafe.akka&quot;</span> <span style="color: #333333">%%</span> <span style="background-color: #fff0f0">&quot;akka-testkit&quot;</span> <span style="color: #333333">%</span> akkaVersion<span style="color: #333333">,</span>
+  <span style="background-color: #fff0f0">&quot;org.scalatest&quot;</span> <span style="color: #333333">%%</span> <span style="background-color: #fff0f0">&quot;scalatest&quot;</span> <span style="color: #333333">%</span> <span style="background-color: #fff0f0">&quot;3.0.1&quot;</span> <span style="color: #333333">%</span> <span style="background-color: #fff0f0">&quot;test&quot;</span>
+<span style="color: #333333">)</span>
+</pre></div>
+		
+
+		<p>
+
+		<br><br>
+
+		Дальше нужно писать тесты для наших акторов, во многих проектов я использую специальный класс, для тестирования акторов - <b>MultiThreadedActorContext</b>, ничего супер умного, наверно вы тоже используете что то подобное. 
+
+		<br><br>
+		<b>MultiThreadedActorContext</b>
+		</p>
+
+
+		<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">core</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.actor.ActorSystem</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.testkit.TestKit</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">org.scalatest.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">BeforeAndAfterAll</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">MustMatchers</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Suite</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">WordSpecLike</span><span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">MultiThreadedActorContext</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">TestKit</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">ActorSystem</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;question-test-app&quot;</span><span style="color: #333333">))</span>
+  <span style="color: #008800; font-weight: bold">with</span> <span style="color: #BB0066; font-weight: bold">WordSpecLike</span>
+  <span style="color: #008800; font-weight: bold">with</span> <span style="color: #BB0066; font-weight: bold">MustMatchers</span>
+  <span style="color: #008800; font-weight: bold">with</span> <span style="color: #BB0066; font-weight: bold">StopSystemAfterAll</span> <span style="color: #333333">{</span>
+
+<span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">trait</span> <span style="color: #BB0066; font-weight: bold">StopSystemAfterAll</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">BeforeAndAfterAll</span> <span style="color: #333333">{</span>
+  <span style="color: #008800; font-weight: bold">this:</span> <span style="color: #333399; font-weight: bold">TestKit</span> <span style="color: #333399; font-weight: bold">with</span> <span style="color: #333399; font-weight: bold">Suite</span> <span style="color: #333333">=&gt;</span>
+
+  <span style="color: #008800; font-weight: bold">override</span> <span style="color: #008800; font-weight: bold">protected</span> <span style="color: #008800; font-weight: bold">def</span> afterAll<span style="color: #333333">()</span><span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">Unit</span> <span style="color: #333333">=</span> <span style="color: #333333">{</span>
+    <span style="color: #008800; font-weight: bold">super</span><span style="color: #333333">.</span>afterAll<span style="color: #333333">()</span>
+    system<span style="color: #333333">.</span>terminate<span style="color: #333333">()</span>
+  <span style="color: #333333">}</span>
+<span style="color: #333333">}</span>
+</pre></div>
+
+
+		<p>
+
+		<br>
+
+		Все наши тесты для акторов будут наследоваться от <b>MultiThreadedActorContext</b>, который создает перед запуском теста <b>ActorSystem</b> и останавливает ее же после завершения теста. Если вам не понятно что такое <b>WordSpecLike</b>, <b>MustMatchers</b> не тратьте не минуты, и погрузитесь в мир <a href="http://www.scalatest.org/user_guide/selecting_a_style">scalatest</a>.
+
+		<br><br>
+
+		Перейдем к тестам. Началом для меня послужил тест для Producer-а. Он самый простой из всех 3х компонентов по этому я начал с него. В моем понимании это актор, который при старте открывает файл, при пролучении сообщения Produce читает из файла одну строчку. Просто не так ли?!
+		<br><br>
+
+		В моем исходном файле первые четыре строчки пустые, а в пятой находится линия "THE COMPLETE SHERLOCK HOLMES". Я не стал ничего выдумывать, и вызвал 4 раза сообщение Produce, и на 5 вызов Produce я ожидаю "THE COMPLETE SHERLOCK HOLMES". Вот и тест кейс.
+
+		<br><br>
+
+		<b>ProducerTest</b>
+
+		</p>
+
+		<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">actors</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Producer.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Produce</span><span style="color: #333333">}</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">core.MultiThreadedActorContext</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">ProducerTest</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">MultiThreadedActorContext</span> <span style="color: #333333">{</span>
+
+  <span style="color: #008800; font-weight: bold">val</span> producer <span style="color: #008800; font-weight: bold">=</span> system<span style="color: #333333">.</span>actorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Producer</span><span style="color: #333333">.</span>props<span style="color: #333333">(</span>testActor<span style="color: #333333">))</span>
+  <span style="color: #008800; font-weight: bold">val</span> targetString <span style="color: #008800; font-weight: bold">=</span> <span style="background-color: #fff0f0">&quot;THE COMPLETE SHERLOCK HOLMES&quot;</span>
+
+  <span style="background-color: #fff0f0">&quot;Producer&quot;</span> must <span style="color: #333333">{</span>
+    <span style="background-color: #fff0f0">&quot;receive message Produce and send to testActor value of this line as string&quot;</span> in <span style="color: #333333">{</span>
+      producer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;&quot;</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>producer<span style="color: #333333">)))</span>
+      producer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;&quot;</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>producer<span style="color: #333333">)))</span>
+      producer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;&quot;</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>producer<span style="color: #333333">)))</span>
+      producer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;&quot;</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>producer<span style="color: #333333">)))</span>
+      producer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span>targetString<span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>producer<span style="color: #333333">)))</span>
+
+    <span style="color: #333333">}</span>
+  <span style="color: #333333">}</span>
+<span style="color: #333333">}</span>
+</pre></div>
+
+
+		<p>
+		<br>
+		<b>P.S:</b> Если вы задаетесь вопросом что такое <b>testActor</b>, то вам стоит ознакомиться с документацией по <a href="http://doc.akka.io/docs/akka/current/scala/testing.html">akka-testkit</a>.
+
+		<br><br>
+
+		Давайте напишем нашего Producer-а. Который всего лишь, отвечает на одно сообщение <b>Produce</b>.
+
+
+<br><br>
+		<b>Producer</b>
+
+		</p>
+
+
+		<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">actors</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Producer.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">EndOfFileStream</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Produce</span><span style="color: #333333">}</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.actor.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">Actor</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">ActorRef</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">scala.io.Source</span>
+
+<span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">Producer</span> <span style="color: #333333">{</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span>text<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">String</span><span style="color: #333333">,</span> producer<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">Option</span><span style="color: #333333">[</span><span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">])</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">EndOfFileStream</span>
+
+  <span style="color: #008800; font-weight: bold">def</span> props<span style="color: #333333">(</span>processingNode<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">new</span> <span style="color: #BB0066; font-weight: bold">Producer</span><span style="color: #333333">(</span>processingNode<span style="color: #333333">))</span>
+<span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">Producer</span><span style="color: #333333">(</span>processingNode<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">Actor</span> <span style="color: #333333">{</span>
+
+  <span style="color: #008800; font-weight: bold">val</span> lineStream <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">Source</span><span style="color: #333333">.</span>fromFile<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;src/main/resources/cano.txt&quot;</span><span style="color: #333333">).</span>getLines
+  
+  <span style="color: #008800; font-weight: bold">def</span> receive <span style="color: #008800; font-weight: bold">=</span> <span style="color: #333333">{</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">Produce</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      <span style="color: #008800; font-weight: bold">val</span> iterator <span style="color: #008800; font-weight: bold">=</span> lineStream
+      <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">(</span>iterator<span style="color: #333333">.</span>hasNext<span style="color: #333333">)</span> <span style="color: #333333">{</span>
+        <span style="color: #008800; font-weight: bold">val</span> text <span style="color: #008800; font-weight: bold">=</span> iterator<span style="color: #333333">.</span>next<span style="color: #333333">()</span>
+        processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span>text<span style="color: #333333">.</span>trim<span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>self<span style="color: #333333">))</span>
+      <span style="color: #333333">}</span> <span style="color: #008800; font-weight: bold">else</span> <span style="color: #333333">{</span>
+        processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">EndOfFileStream</span>
+      <span style="color: #333333">}</span>
+  <span style="color: #333333">}</span>
+<span style="color: #333333">}</span>
+</pre></div>
+
+		<p>
+
+		<br>
+		<label><b>P.S:</b> Пару слов о нэйминге, он не супер хорош, да и не понятно зачем я нужен producer в Line, наверно это можно сделать красивее, я спешил, но если вы хотите внести свой вклад в статью, напишите, как сделать это - <b>baibossynov.valery@gmailc.com</b>.</label>
+
+		<br><br>
+
+		Запускаем sbt test, круто, работает. Давйте теперь разберемся что есть что, как указанно в изображении про <b>Producer-ProcessingNode-Consumer</b>, данные между producer-ом и consumer-ом проходят через processing node, поэтому кейс класс представляющий собой линию(Line), я отправляю в <b>processingNode</b>. Так же, туда я отпавляю что файл закончился(EndOfFileStream). 
+
+
+		<br><br>
+
+		У вас наверно назрел вопрос вопрос, а не читает ли <br> <b>Source.fromFile("src/main/resources/cano.txt").getLines</b> весь файл в память?! Я подготовился - <a href="http://stackoverflow.com/questions/4255021/how-do-i-read-a-large-csv-file-with-scala-stream-class">нет</a>.
+
+
+
+
+
+
+
+
+
+		</p>
+
+
+		
         </p>
       
     </div>
