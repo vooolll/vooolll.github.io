@@ -241,7 +241,7 @@ libraryDependencies <span style="color: #333333">++=</span> <span style="color: 
 
 		<br><br>
 
-		Запускаем sbt test, круто, работает. Давйте теперь разберемся что есть что, как указанно в изображении про <b>Producer-ProcessingNode-Consumer</b>, данные между producer-ом и consumer-ом проходят через processing node, поэтому кейс класс представляющий собой линию(Line), я отправляю в <b>processingNode</b>. Так же, туда я отпавляю что файл закончился(EndOfFileStream). 
+		Запускаем в терминале <b>sbt test</b>, круто, тест прошел успешно. Работает! Давйте теперь разберемся что есть что. Как указанно в изображении про <b>Producer-ProcessingNode-Consumer</b>, данные между producer-ом и consumer-ом проходят через processing nodeю. Берем читаем линию из итератора , создаем кейс класс представляющий собой линию(Line), и отправляем в <b>processingNode</b>. На случай если в файле не осталось строк, сигнализируем в processing node о том что файл закончился(EndOfFileStream). 
 
 
 		<br><br>
