@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Vooolll.GitHub.io by vooolll</title>
+    <title>Изучаем akka-streams, день 1</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/article.css">
@@ -30,14 +30,13 @@
         	</br></br> Я уже имею средний бэкграунд по работе с акторами, надеюсь вы тоже.
 		</p>
         <h3>Начало</h3>
-       	<p> И так начну. Прежде чем ты начинаешь что то изучать у тебя обычно имеется очень тупое представление о том что будешь изучать. Так вот, начну как раз с этого, akka-streams это штука которая упрощает работу с потоком данных, для начала входных. В голову сразу приходит пример с вебсокетом в который постоянно что то приходит, и он должен это обработать(пачкой которая может поместиться в память, можно назвать это buffer) и вернуть обратно то же что либо.
-       	Мое представление заключается в том что akka-streams предлогает интересный подход в работе с такого рода вещами, либо обстракция очень простая и умная, или и то и другое.
+       	<p> Прежде чем я начал изучать akka-streams у меня было представление что это библиотека которая упрощает работу с потоком данных. В голову сразу приходит пример с вебсокетом в который постоянно приходит поток данных, и он должен это обработать(пачкой которая может поместиться в память) и вернуть обратно уже обработанные данные клиенту.
+       	Akka-streams привелек меня тем что он предлогает новый подход и новую абстракцию в работе со стримом данных.
 
        	</br></br> В ходе написания статьи я постоянно обращаюсь к различным источникам, что бы узнавать что то новое, начал я с замечательной книги <a href="https://www.manning.com/books/akka-in-action">Akka in Action</a>. потому что это самое современное и объемное по Akka из всего что я нашел в интернете, на момент написания статьи, да и плюс уже купил. </p>
 
-		<h3>И снова Producer-Processing Node-Consumer</h3>
-		<p>
-       	Начнем с простых вещей. Наверное если мы обрабатываем какой то поток данных есть что то, что воспроизводит их, например человек вводит данные, или другая программа пишет что то в лог или же какой то контроллер пишет байты куда то. И есть что то что потребляет эти данные уже в нужном ему виде. Например контроллер пишет байты в файл, сокет или еще куда то, а клиентскому приложению данные нужны уже обработаные и в виде json. Окей, то что создает данные называется Producer, то что потребляет данные называется Consumer. Между Producer-ом и Consumer-ом есть нечто, что обрабатывает данные и переводит в нужный вид или отбрасывает будем называть это Processing node.
+		<h3>Producer-Processing Node-Consumer</h3>
+		<p> Если мы обрабатываем какой то поток данных есть что то, что воспроизводит их, например человек вводит данные, или другая программа пишет что то в лог или же какой то контроллер пишет байты куда то. И есть что то что потребляет эти данные уже в нужном ему виде. Например контроллер пишет байты в файл, сокет или еще куда то, а клиенту данные нужны уже обработаные и в виде json. То что создает данные это <b>Producer</b>, а то что потребляет данные - <b>Consumer</b>/. Между Producer-ом и Consumer-ом есть нечто, что обрабатывает данные и переводит в нужный вид или отбрасывает будем называть это <b>Processing node</b>.
 
        	</br></br>
 
@@ -55,7 +54,7 @@
 
        	</br></br>
 
-       	Хм, что мне показалось реально крутым и интересным так это то что в akka-streams Consumer, должен сигнализировать Producer-у сколько он может обрабоать, что бы предотвратить перегрузку. А Producer в свою очередь должен слать ровно столько элементов, сколько запрашивает наш Consumer. И все элементы должны проходить через Processing Node, который делает обработку. Круто. Интересно. Свежо.
+       	В akka-streams Consumer, должен сигнализировать Producer-у сколько он может обрабоать, что бы предотвратить перегрузку. А Producer в свою очередь должен слать ровно столько элементов, сколько запрашивает Consumer. И все элементы должны проходить через Processing Node, который делает обработку.
 
 		</br></br>
 
@@ -147,10 +146,10 @@ libraryDependencies <span style="color: #333333">++=</span> <span style="color: 
 
 		<br><br>
 
-		Перейдем к тестам. Началом для меня послужил тест для Producer-а. Он самый простой из всех 3х компонентов по этому я начал с него. В моем понимании это актор, который при старте открывает файл, при пролучении сообщения Produce читает из файла одну строчку. Просто не так ли?!
+		Перейдем к тестам. Началом для меня послужил тест для Producer-а. Он самый простой из всех 3х компонентов по этому я начал с него. В моем понимании это актор, который при старте открывает файл, при пролучении сообщения Produce читает из файла одну строчку.
 		<br><br>
 
-		В моем исходном файле первые четыре строчки пустые, а в пятой находится линия "THE COMPLETE SHERLOCK HOLMES". Я не стал ничего выдумывать, и вызвал 4 раза сообщение Produce, и на 5 вызов Produce я ожидаю "THE COMPLETE SHERLOCK HOLMES". Вот и тест кейс.
+		В моем исходном файле первые четыре строчки пустые, а в пятой находится линия "THE COMPLETE SHERLOCK HOLMES". В этом тесте я просто вызвал 4 раза сообщение Produce, и на 5 вызов Produce я ожидаю "THE COMPLETE SHERLOCK HOLMES".
 
 		<br><br>
 
@@ -237,31 +236,383 @@ libraryDependencies <span style="color: #333333">++=</span> <span style="color: 
 		<p>
 
 		<br>
-		<label><b>P.S:</b> Пару слов о нэйминге, он не супер хорош, да и не понятно зачем я нужен producer в Line, наверно это можно сделать красивее, я спешил, но если вы хотите внести свой вклад в статью, напишите, как сделать это - <b>baibossynov.valery@gmail.com</b>.</label>
+		<label><b>P.S:</b>В этом коде есть небольшие проблемы в нейминге, но для примера это не критично.</label>
 
 		<br><br>
 
-		Запускаем в терминале <b>sbt test</b>, круто, тест прошел успешно. Работает! Давйте теперь разберемся что есть что. Как указанно в изображении про <b>Producer-ProcessingNode-Consumer</b>, данные между producer-ом и consumer-ом проходят через processing nodeю. Берем читаем линию из итератора , создаем кейс класс представляющий собой линию(Line), и отправляем в <b>processingNode</b>. На случай если в файле не осталось строк, сигнализируем в processing node о том что файл закончился(EndOfFileStream). 
+		Запускаем в терминале <b>sbt test</b>, круто, тест прошел успешно. Работает! Давйте теперь разберемся что есть что. Как указанно в изображении про <b>Producer-ProcessingNode-Consumer</b>, данные между producer-ом и consumer-ом проходят через processing node. Берем читаем линию из итератора , создаем кейс класс представляющий собой линию(Line), и отправляем в <b>processingNode</b>. На случай если в файле не осталось строк, сигнализируем в processing node о том что файл закончился(EndOfFileStream). 
 
 
 		<br><br>
 
-		У вас наверно назрел вопрос вопрос, а не читает ли <br> <b>Source.fromFile("src/main/resources/cano.txt").getLines</b> весь файл в память?! Я подготовился - <a href="http://stackoverflow.com/questions/4255021/how-do-i-read-a-large-csv-file-with-scala-stream-class">нет</a>.
+		У вас наверно назрел вопрос вопрос, а не читает ли <br> <b>Source.fromFile("src/main/resources/cano.txt").getLines</b> весь файл в память?! Ответ - <a href="http://stackoverflow.com/questions/4255021/how-do-i-read-a-large-csv-file-with-scala-stream-class">Нет</a>.
+
+		</p>
+		<p>
 
 
+		Далее подумаем над тем что должен делать Consumer:
+		</p>
 
 
+		<ul>
+			<li>Сигнализировать о том что он готов обрабатывать поток данных</li>
+			<li>При получении опредиленного количества данных, он должен сигнализировать о том что он перегружен и больше не может обрабатывать поток данных</li>
+		</ul>
 
 
+		<br><br>
 
+		<p>
+
+		Consumer не должен общаться с Producer-ом напрямую, он должен общаться с ним через ProcessingNode. Для удобства сделаем Consumer дочерним актором для ProcessingNode. 
+
+		<br><br>
+
+		Тест кейс для Consumer актора выглядит следующим образом:
 
 
 		</p>
 
+		<p>
+			<b>Consumer</b>
+		</p>
+
+		<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">actors</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Consumer.Load</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.ProcessingNode._</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Producer.EndOfFileStream</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.testkit.TestProbe</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">core.MultiThreadedActorContext</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">ConsumerTest</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">MultiThreadedActorContext</span> <span style="color: #333333">{</span>
+
+  <span style="color: #008800; font-weight: bold">val</span> parentActor <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">TestProbe</span><span style="color: #333333">()</span>
+  <span style="color: #008800; font-weight: bold">val</span> consumer <span style="color: #008800; font-weight: bold">=</span> parentActor<span style="color: #333333">.</span>childActorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Consumer</span><span style="color: #333333">.</span>props<span style="color: #333333">(</span>testActor<span style="color: #333333">))</span>
+
+  <span style="background-color: #fff0f0">&quot;Consumer&quot;</span> must <span style="color: #333333">{</span>
+    <span style="background-color: #fff0f0">&quot;send StartProducingQuestions to parent actor&quot;</span> in <span style="color: #333333">{</span>
+      consumer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Load</span>
+      parentActor<span style="color: #333333">.</span>expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">None</span><span style="color: #333333">))</span>
+    <span style="color: #333333">}</span>
+
+    <span style="background-color: #fff0f0">&quot;receive string and save it to its state, and send StartProducingQuestions&quot;</span> in <span style="color: #333333">{</span>
+      consumer <span style="color: #333333">!</span> <span style="background-color: #fff0f0">&quot;hi?&quot;</span>
+      expectNoMsg<span style="color: #333333">()</span>
+      parentActor<span style="color: #333333">.</span>expectNoMsg<span style="color: #333333">()</span>
+    <span style="color: #333333">}</span>
+
+    <span style="background-color: #fff0f0">&quot;receive string 10 times, and send StopProducingQuestions then &quot;</span> <span style="color: #333333">+</span>
+      <span style="background-color: #fff0f0">&quot;wait for 2 sec and send StartProducingQuestions again&quot;</span> in <span style="color: #333333">{</span>
+      <span style="color: #008800; font-weight: bold">for</span><span style="color: #333333">(</span>i <span style="color: #008800; font-weight: bold">&lt;-</span> <span style="color: #0000DD; font-weight: bold">0</span> until <span style="color: #0000DD; font-weight: bold">10</span><span style="color: #333333">)</span> <span style="color: #333333">{</span>
+        consumer <span style="color: #333333">!</span> <span style="background-color: #fff0f0">&quot;hi?&quot;</span>
+      <span style="color: #333333">}</span>
+      consumer <span style="color: #333333">!</span> <span style="background-color: #fff0f0">&quot;hi?&quot;</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">List</span><span style="color: #333333">.</span>fill<span style="color: #333333">(</span><span style="color: #0000DD; font-weight: bold">10</span><span style="color: #333333">)(</span><span style="background-color: #fff0f0">&quot;hi?&quot;</span><span style="color: #333333">))</span>
+      parentActor<span style="color: #333333">.</span>expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span><span style="color: #333333">)</span>
+      parentActor<span style="color: #333333">.</span>expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">None</span><span style="color: #333333">))</span>
+
+    <span style="color: #333333">}</span>
+
+    <span style="background-color: #fff0f0">&quot;receive EndOfFileStream and send to parentActor StopProducingQuestion&quot;</span> in <span style="color: #333333">{</span>
+      consumer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">EndOfFileStream</span>
+      parentActor<span style="color: #333333">.</span>expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span><span style="color: #333333">)</span>
+    <span style="color: #333333">}</span>
+  <span style="color: #333333">}</span>
+<span style="color: #333333">}</span>
+</pre></div>
+
+<br>
+	<p>
+		В тест кейсе мы проверяем отправляет ли Consumer, сообщение о том что пора генерировать данные в ProcessingNode,
+		а так же, сигнализирует ли он о том, что он перегружен(имеет 10 вопросительных предложений в своем состоянии), отправляя в ProcessingNode команду <b>StopProducingQuestions</b>, после чего спустя какое то время сигнализирует о том что ему нужны еще данные, командой <b>StartProducingQuestions</b>. 
+
+
+		<br><br>
+		<b>Реализация Consumer-а:</b>
+	</p>
+
+		<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">actors</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Consumer.Load</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.ProcessingNode.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span><span style="color: #333333">}</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Producer.EndOfFileStream</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.actor.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">Actor</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">ActorRef</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">Consumer</span> <span style="color: #333333">{</span>
+  <span style="color: #008800; font-weight: bold">def</span> props<span style="color: #333333">(</span>uiActor<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">new</span> <span style="color: #BB0066; font-weight: bold">Consumer</span><span style="color: #333333">(</span>uiActor<span style="color: #333333">))</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">Load</span>
+<span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">Consumer</span><span style="color: #333333">(</span>uiActor<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">Actor</span> <span style="color: #333333">{</span>
+
+  <span style="color: #008800; font-weight: bold">val</span> processingNode <span style="color: #008800; font-weight: bold">=</span> context<span style="color: #333333">.</span>parent
+
+  <span style="color: #008800; font-weight: bold">var</span> questions <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">List</span><span style="color: #333333">.</span>empty<span style="color: #333333">[</span><span style="color: #333399; font-weight: bold">String</span><span style="color: #333333">]</span>
+  <span style="color: #008800; font-weight: bold">val</span> maxBoundedQuestions <span style="color: #008800; font-weight: bold">=</span> <span style="color: #0000DD; font-weight: bold">10</span>
+
+  <span style="color: #008800; font-weight: bold">def</span> receive <span style="color: #008800; font-weight: bold">=</span> <span style="color: #333333">{</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">Load</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      println<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;Loading questions&quot;</span><span style="color: #333333">)</span>
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">None</span><span style="color: #333333">)</span>
+    <span style="color: #008800; font-weight: bold">case</span> s<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">String</span> <span style="color: #333333">=&gt;</span> questions <span style="color: #008800; font-weight: bold">=</span> s<span style="color: #333333">::</span>questions
+      <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">(</span>questions<span style="color: #333333">.</span>length <span style="color: #333333">&lt;</span> maxBoundedQuestions<span style="color: #333333">)</span> <span style="color: #333333">{</span>
+
+      <span style="color: #333333">}</span> <span style="color: #008800; font-weight: bold">else</span> <span style="color: #333333">{</span>
+        uiActor <span style="color: #333333">!</span> questions
+        questions <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">List</span><span style="color: #333333">.</span>empty<span style="color: #333333">[</span><span style="color: #333399; font-weight: bold">String</span><span style="color: #333333">]</span>
+        processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span>
+        <span style="color: #BB0066; font-weight: bold">Thread</span><span style="color: #333333">.</span>sleep<span style="color: #333333">(</span><span style="color: #0000DD; font-weight: bold">2000</span><span style="color: #333333">)</span>
+        println<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;Loading new batch&quot;</span><span style="color: #333333">)</span>
+        processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">None</span><span style="color: #333333">)</span>
+      <span style="color: #333333">}</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">EndOfFileStream</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      println<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;FINISH: No data anymore&quot;</span><span style="color: #333333">)</span>
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span>
+  <span style="color: #333333">}</span>
+
+<span style="color: #333333">}</span>
+</pre></div>
+
+	<br>
+
+	<p>
+		В качестве аргумента актор принимает ссылку на другой актор, <b>uiActor</b>, это компонент в который будут приходить список в уже обработанном виде, в нашем случае ввиде листа строк.
+
+		<br><br>
+
+		В состоянии актора мы храним вопросы, после того как их набирается определенное количество(10) то список вопросов отправляется в <b>uiActor</b>, а <b>questions</b> мы опустошаем, останавливаем производство вопросов(StopProducingQuestions) в ProcessingNode, ждем 2 секунды, и отправляем в ProcessingNode сигнал о том что требуются еще данные(StartProducingQuestions).
+
+
+		<br><br>
+
+		Осталось сделать самое основное - <b>ProcessingNode</b>.
+
+		ProcessingNode является посредником между Producer-ом и Consumer-ом
+
+		ProcessingNode должен:
+
+		<ul>
+			<li>По умолчанию он должен просто быть создан и не делать ничего</li>
+			<li>Сигнализировать Producer-у о том что нужно читать(производить) строки</li>
+			<li>Сигнализировать Producer-у о том что нужно перестать читать(производить) строки</li>
+			<li>Если Consumer ожидает вопросы от ProcessingNode, то ProcessingNode должен получать строки и фильтровать их, есть ли в них вопросительный знак, если нет то он должен исключать эту строку.</li>
+		</ul>
+
 
 		
-        </p>
-      
+		
+	</p>
+	<p>
+		<br>
+
+		<b>ProcessingNodeTest</b>
+	</p>
+
+	<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">actors</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.ProcessingNode._</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Producer.Produce</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.testkit.TestProbe</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">core.MultiThreadedActorContext</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">ProcessingNodeTest</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">MultiThreadedActorContext</span> <span style="color: #333333">{</span>
+
+
+  <span style="color: #008800; font-weight: bold">val</span> testProducer <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">TestProbe</span><span style="color: #333333">()</span>
+  <span style="color: #008800; font-weight: bold">def</span> fixture <span style="color: #008800; font-weight: bold">=</span> <span style="color: #008800; font-weight: bold">new</span> <span style="color: #333333">{</span>
+    <span style="color: #008800; font-weight: bold">val</span> processingNode <span style="color: #008800; font-weight: bold">=</span> system<span style="color: #333333">.</span>actorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">ProcessingNode</span><span style="color: #333333">.</span>props<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">TestProbe</span><span style="color: #333333">().</span>ref<span style="color: #333333">))</span>
+  <span style="color: #333333">}</span>
+
+  <span style="background-color: #fff0f0">&quot;ProcessingNode&quot;</span> must <span style="color: #333333">{</span>
+
+    <span style="background-color: #fff0f0">&quot;not produce anything by default&quot;</span> in <span style="color: #333333">{</span>
+      <span style="color: #008800; font-weight: bold">val</span> processingNode <span style="color: #008800; font-weight: bold">=</span> fixture<span style="color: #333333">.</span>processingNode
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">ShouldProduce</span><span style="color: #333333">(</span>testActor<span style="color: #333333">)</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">false</span><span style="color: #333333">)</span>
+    <span style="color: #333333">}</span>
+
+    <span style="background-color: #fff0f0">&quot;trigger Producer to produce lines when it receives StartProducingQuestions&quot;</span> in <span style="color: #333333">{</span>
+      <span style="color: #008800; font-weight: bold">val</span> processingNode <span style="color: #008800; font-weight: bold">=</span> fixture<span style="color: #333333">.</span>processingNode
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>testProducer<span style="color: #333333">.</span>ref<span style="color: #333333">))</span>
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">ShouldProduce</span><span style="color: #333333">(</span>testActor<span style="color: #333333">)</span>
+      testProducer<span style="color: #333333">.</span>expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Produce</span><span style="color: #333333">)</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">true</span><span style="color: #333333">)</span>
+    <span style="color: #333333">}</span>
+
+    <span style="background-color: #fff0f0">&quot;trigger Producer to stop producing line when it receives StopProducingQuestion&quot;</span> in <span style="color: #333333">{</span>
+      <span style="color: #008800; font-weight: bold">val</span> processingNode <span style="color: #008800; font-weight: bold">=</span> fixture<span style="color: #333333">.</span>processingNode
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Some</span><span style="color: #333333">(</span>testProducer<span style="color: #333333">.</span>ref<span style="color: #333333">))</span>
+      testProducer<span style="color: #333333">.</span>expectMsg<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Produce</span><span style="color: #333333">)</span>
+
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span>
+      processingNode <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">ShouldProduce</span><span style="color: #333333">(</span>testActor<span style="color: #333333">)</span>
+      expectMsg<span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">false</span><span style="color: #333333">)</span>
+    <span style="color: #333333">}</span>
+  <span style="color: #333333">}</span>
+<span style="color: #333333">}</span>
+</pre></div>
+	
+	<br>
+	<p>
+		В этом тесте я использую хитрость, я передаю тестовую ссылку на <b>testProducer</b> в виде option-а что бы слать в него сообщения, так как мне надо тестировать приходят ли в child-акторы ожидаемые мной сообщения. 
+
+		<br><br>
+
+		<b>ProcessingNode</b>
+
+	</p>
+
+
+	<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">actors</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.ProcessingNode._</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Producer.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">EndOfFileStream</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Produce</span><span style="color: #333333">}</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.actor.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">Actor</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">ActorRef</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">}</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.pattern.pipe</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">scala.concurrent.ExecutionContext.Implicits.global</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">scala.concurrent.Future</span>
+
+<span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">ProcessingNode</span> <span style="color: #333333">{</span>
+
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">ShouldProduce</span><span style="color: #333333">(</span>out<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span>producer<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">Option</span><span style="color: #333333">[</span><span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">])</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span>
+  <span style="color: #008800; font-weight: bold">case</span> <span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">GetConsumer</span><span style="color: #333333">()</span>
+
+  <span style="color: #008800; font-weight: bold">def</span> props<span style="color: #333333">(</span>uiActor<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">new</span> <span style="color: #BB0066; font-weight: bold">ProcessingNode</span><span style="color: #333333">(</span>uiActor<span style="color: #333333">))</span>
+  <span style="color: #008800; font-weight: bold">def</span> isQuestion<span style="color: #333333">(</span>trimmed<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">String</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=</span> trimmed<span style="color: #333333">.</span>endsWith<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;?&quot;</span><span style="color: #333333">)</span> <span style="color: #333333">||</span> trimmed<span style="color: #333333">.</span>endsWith<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;?\&quot;&quot;</span><span style="color: #333333">)</span>
+<span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">ProcessingNode</span><span style="color: #333333">(</span>uiActor<span style="color: #008800; font-weight: bold">:</span> <span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">Actor</span> <span style="color: #333333">{</span>
+
+  <span style="color: #008800; font-weight: bold">var</span> shouldProduce <span style="color: #008800; font-weight: bold">=</span> <span style="color: #008800; font-weight: bold">false</span>
+
+  <span style="color: #008800; font-weight: bold">val</span> consumer <span style="color: #008800; font-weight: bold">=</span> context<span style="color: #333333">.</span>actorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Consumer</span><span style="color: #333333">.</span>props<span style="color: #333333">(</span>uiActor<span style="color: #333333">))</span>
+  <span style="color: #008800; font-weight: bold">val</span> producer <span style="color: #008800; font-weight: bold">=</span> context<span style="color: #333333">.</span>actorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Producer</span><span style="color: #333333">.</span>props<span style="color: #333333">(</span>self<span style="color: #333333">))</span>
+
+  <span style="color: #008800; font-weight: bold">def</span> receive <span style="color: #008800; font-weight: bold">=</span> <span style="color: #333333">{</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">StartProducingQuestions</span><span style="color: #333333">(</span>testProducer<span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      shouldProduce <span style="color: #008800; font-weight: bold">=</span> <span style="color: #008800; font-weight: bold">true</span>
+      testProducer<span style="color: #333333">.</span>getOrElse<span style="color: #333333">(</span>producer<span style="color: #333333">)</span> <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      producer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">StopProducingQuestions</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      shouldProduce <span style="color: #008800; font-weight: bold">=</span> <span style="color: #008800; font-weight: bold">false</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">Line</span><span style="color: #333333">(</span>text<span style="color: #333333">,</span> testProducer<span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      <span style="color: #008800; font-weight: bold">val</span> trimmed <span style="color: #008800; font-weight: bold">=</span> text<span style="color: #333333">.</span>trim
+      <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">(</span>isQuestion<span style="color: #333333">(</span>trimmed<span style="color: #333333">))</span> <span style="color: #333333">{</span>
+        consumer <span style="color: #333333">!</span> trimmed
+      <span style="color: #333333">}</span>
+      <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">(</span>shouldProduce<span style="color: #333333">)</span> <span style="color: #333333">{</span>
+        testProducer<span style="color: #333333">.</span>getOrElse<span style="color: #333333">(</span>producer<span style="color: #333333">)</span> <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Produce</span>
+      <span style="color: #333333">}</span>
+
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">GetConsumer</span><span style="color: #333333">()</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      <span style="color: #BB0066; font-weight: bold">Future</span><span style="color: #333333">.</span>successful<span style="color: #333333">(</span>consumer<span style="color: #333333">)</span> pipeTo sender<span style="color: #333333">()</span>
+
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">ShouldProduce</span><span style="color: #333333">(</span>out<span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=&gt;</span> out <span style="color: #333333">!</span> shouldProduce
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #BB0066; font-weight: bold">EndOfFileStream</span> <span style="color: #008800; font-weight: bold">=&gt;</span>
+      consumer <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">EndOfFileStream</span>
+  <span style="color: #333333">}</span>
+
+<span style="color: #333333">}</span>
+</pre></div>
+
+
+	<p>
+		Теперь реализовав логику по работе с потоком данных через акторы можно написать клиентское приложение, для теста я написал простую консольную программу:
+
+		<br><br>
+
+		<b>ConsoleQuestionApp</b>
+
+
+	</p>
+
+	<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">package</span> <span style="color: #0e84b5; font-weight: bold">app</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.Consumer.Load</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.ProcessingNode</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">actors.ProcessingNode.GetConsumer</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.pattern.ask</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.actor.</span><span style="color: #333333">{</span><span style="color: #BB0066; font-weight: bold">Actor</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">ActorRef</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">ActorSystem</span><span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">}</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">akka.util.Timeout</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">scala.concurrent.duration.DurationInt</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">scala.concurrent.ExecutionContext.Implicits.global</span>
+
+
+<span style="color: #008800; font-weight: bold">object</span> <span style="color: #BB0066; font-weight: bold">ConsoleQuestionApp</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">App</span> <span style="color: #333333">{</span>
+  <span style="color: #008800; font-weight: bold">val</span> system <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">ActorSystem</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;question-app&quot;</span><span style="color: #333333">)</span>
+  <span style="color: #008800; font-weight: bold">val</span> ui <span style="color: #008800; font-weight: bold">=</span> system<span style="color: #333333">.</span>actorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">Props</span><span style="color: #333333">[</span><span style="color: #333399; font-weight: bold">ConsoleClient</span><span style="color: #333333">])</span>
+  <span style="color: #008800; font-weight: bold">implicit</span> <span style="color: #008800; font-weight: bold">val</span> timeout <span style="color: #008800; font-weight: bold">=</span> <span style="color: #BB0066; font-weight: bold">Timeout</span><span style="color: #333333">(</span><span style="color: #0000DD; font-weight: bold">100</span> second<span style="color: #333333">)</span>
+  <span style="color: #008800; font-weight: bold">val</span> processingNode <span style="color: #008800; font-weight: bold">=</span> system<span style="color: #333333">.</span>actorOf<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">ProcessingNode</span><span style="color: #333333">.</span>props<span style="color: #333333">(</span>ui<span style="color: #333333">))</span>
+  <span style="color: #008800; font-weight: bold">val</span> consumerFuture <span style="color: #008800; font-weight: bold">=</span> processingNode<span style="color: #333333">.</span>ask<span style="color: #333333">(</span><span style="color: #BB0066; font-weight: bold">GetConsumer</span><span style="color: #333333">()).</span>mapTo<span style="color: #333333">[</span><span style="color: #333399; font-weight: bold">ActorRef</span><span style="color: #333333">]</span>
+
+  consumerFuture<span style="color: #333333">.</span>map<span style="color: #333333">(</span>ref <span style="color: #008800; font-weight: bold">=&gt;</span> ref <span style="color: #333333">!</span> <span style="color: #BB0066; font-weight: bold">Load</span><span style="color: #333333">)</span>
+
+<span style="color: #333333">}</span>
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">ConsoleClient</span> <span style="color: #008800; font-weight: bold">extends</span> <span style="color: #BB0066; font-weight: bold">Actor</span> <span style="color: #333333">{</span>
+  <span style="color: #008800; font-weight: bold">def</span> receive <span style="color: #008800; font-weight: bold">=</span> <span style="color: #333333">{</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #333333">(</span>x<span style="color: #333333">::</span>xs<span style="color: #333333">)</span> <span style="color: #008800; font-weight: bold">=&gt;</span> println<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;Received data:&quot;</span><span style="color: #333333">)</span>
+      println<span style="color: #333333">((</span>x<span style="color: #333333">::</span>xs<span style="color: #333333">).</span>mkString<span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;\n&quot;</span><span style="color: #333333">))</span>
+  <span style="color: #333333">}</span>
+<span style="color: #333333">}</span>
+</pre></div>
+
+		<br>
+
+	<p>
+
+		Теперь давайте запустим нашу консольную программу:
+
+
+
+
+	</p>
+
+	<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #996633">$ </span>sbt run
+<span style="color: #333333">[</span>info<span style="color: #333333">]</span> Loading project definition from /home/vol/Projects/stream-processing-via-actor/project
+<span style="color: #333333">[</span>info<span style="color: #333333">]</span> Set current project to stream-processing-via-actor <span style="color: #333333">(</span>in build file:/home/vol/Projects/stream-processing-via-actor/<span style="color: #333333">)</span>
+<span style="color: #333333">[</span>info<span style="color: #333333">]</span> Running app.ConsoleQuestionApp 
+Loading questions
+Received data:
+<span style="background-color: #fff0f0">&quot;how the deuce did he know that I had come from Afghanistan?&quot;</span>
+<span style="background-color: #fff0f0">&quot;When shall we see them?&quot;</span>
+occasionally <span style="color: #008800; font-weight: bold">do </span>experiments. Would that annoy you?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">tobacco, I hope?&quot;</span>
+child with a new toy. <span style="background-color: #fff0f0">&quot;What do you think of that?&quot;</span>
+discovery of mine?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">&quot;</span>And yet you say he is not a medical student?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">could I meet this friend of yours?&quot;</span>
+<span style="background-color: #fff0f0">&quot;Why, what is there against him?&quot;</span>
+misfortunes. <span style="background-color: #fff0f0">&quot;What are you up to now?&quot;</span>
+Loading new batch
+Received data:
+in Utrecht, in the year <span style="color: #FF0000; background-color: #FFAAAA">&#39;</span>34. Do you remember the <span style="color: #008800; font-weight: bold">case</span>, Gregson?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">&quot;</span>Nor Lestrade?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">&quot;</span>You wish me to come?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">not a moment to be lost,&quot;</span> I cried, <span style="background-color: #fff0f0">&quot;shall I go and order you a cab?&quot;</span>
+<span style="background-color: #fff0f0">&quot;Would you mind reading it to me aloud?&quot;</span>
+man was a sergeant of Marines?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">said, in the blandest voice, &quot;</span>what your trade may be?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">your idea of a detective?&quot;</span>
+they have seen every detail <span style="color: #008800; font-weight: bold">for </span>themselves?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">&quot;</span>And these other people?<span style="background-color: #fff0f0">&quot;</span>
+<span style="background-color: #fff0f0">Loading new batch</span>
+<span style="background-color: #fff0f0">Received data:</span>
+<span style="background-color: #fff0f0">that puzzles you?&quot;</span>
+</pre></div>
+
+
+
+
+	<h3>Итог</h3>
+	<p>
+	Мы написали свое первое streaming-приложение, что лично мне дало большее понимание, зачем нужен фреймворк вроде akka-streams.
+      </p>
     </div>
     <script src="javascripts/scale.fix.js"></script>
     
