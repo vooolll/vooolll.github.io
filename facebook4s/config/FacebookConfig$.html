@@ -134,7 +134,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">FacebookConfig</span><span class="result"> extends <a href="ConfigurationDetector.html" class="extype" name="config.ConfigurationDetector">ConfigurationDetector</a></span>
+        <span class="name">FacebookConfig</span><span class="result"> extends <a href="ConfigurationDetector.html" class="extype" name="config.ConfigurationDetector">ConfigurationDetector</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
       </span>
       </h4>
 
@@ -144,7 +144,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="ConfigurationDetector.html" class="extype" name="config.ConfigurationDetector">ConfigurationDetector</a>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span>, <a href="ConfigurationDetector.html" class="extype" name="config.ConfigurationDetector">ConfigurationDetector</a>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -170,7 +170,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="config.FacebookConfig"><span>FacebookConfig</span></li><li class="in" name="config.ConfigurationDetector"><span>ConfigurationDetector</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="config.FacebookConfig"><span>FacebookConfig</span></li><li class="in" name="com.typesafe.scalalogging.LazyLogging"><span>LazyLogging</span></li><li class="in" name="config.ConfigurationDetector"><span>ConfigurationDetector</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -484,6 +484,22 @@ if value is not convertible to an Enum</p></span></dd></dl></div>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="com.typesafe.scalalogging.LazyLogging#logger" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="logger:com.typesafe.scalalogging.Logger"></a><a id="logger:Logger"></a>
+      <span class="permalink">
+      <a href="../config/FacebookConfig$.html#logger:com.typesafe.scalalogging.Logger" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>LazyLogging</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -672,7 +688,9 @@ if value is not convertible to an Enum</p></span></dd></dl></div>
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="config.ConfigurationDetector">
+        <div class="parent" name="com.typesafe.scalalogging.LazyLogging">
+              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></h3>
+            </div><div class="parent" name="config.ConfigurationDetector">
               <h3>Inherited from <a href="ConfigurationDetector.html" class="extype" name="config.ConfigurationDetector">ConfigurationDetector</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>

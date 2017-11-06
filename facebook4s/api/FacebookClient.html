@@ -376,6 +376,23 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="api.FacebookClient#authUrl" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="authUrl(permissions:Seq[api.FacebookClient.Permissions],responseType:api.FacebookClient.ResponseType,state:Option[String]):String"></a><a id="authUrl(Seq[Permissions],ResponseType,Option[String]):String"></a>
+      <span class="permalink">
+      <a href="../api/FacebookClient.html#authUrl(permissions:Seq[api.FacebookClient.Permissions],responseType:api.FacebookClient.ResponseType,state:Option[String]):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">authUrl</span><span class="params">(<span name="permissions">permissions: <span class="extype" name="scala.Seq">Seq</span>[<a href="FacebookClient$.html#Permissions=domain.permission.FacebookPermissions.FacebookUserPermission" class="extmbr" name="api.FacebookClient.Permissions">Permissions</a>]</span>, <span name="responseType">responseType: <a href="FacebookClient$.html#ResponseType=domain.oauth.FacebookOauthResponseType" class="extmbr" name="api.FacebookClient.ResponseType">ResponseType</a> = <span class="symbol"><span class="name"><a href="../domain/index.html">FacebookCode</a></span></span></span>, <span name="state">state: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">permissions</dt><dd class="cmt"><p>permissions you require for your application</p></dd><dt class="param">responseType</dt><dd class="cmt"><p>Determines whether the response data included when the redirect back to the app occurs is in
+                    URL parameters or fragments. Could be (code, token, code and token or granted_scopes)</p></dd><dt class="param">state</dt><dd class="cmt"><p>An arbitrary unique string created by your app to guard against Cross-site Request Forgery</p></dd><dt>returns</dt><dd class="cmt"><p>url that can be used by user of your app log in facebook</p></dd></dl></div>
     </li><li name="api.FacebookClient#clientCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clientCode(longLivedTokenValue:String):scala.concurrent.Future[api.FacebookClient.ClientCode]"></a><a id="clientCode(String):Future[ClientCode]"></a>
       <span class="permalink">
@@ -526,6 +543,38 @@
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">shortLivedTokenValue</dt><dd class="cmt"><p>short lived user access token</p></dd><dt>returns</dt><dd class="cmt"><p>Either future long lived user access token or FacebookOauthError</p></dd></dl></div>
+    </li><li name="api.FacebookClient#feed" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="feed(userId:api.FacebookClient.UserId,accessToken:api.FacebookClient.AccessToken):scala.concurrent.Future[api.FacebookClient.UserFeed]"></a><a id="feed(UserId,AccessToken):Future[UserFeed]"></a>
+      <span class="permalink">
+      <a href="../api/FacebookClient.html#feed(userId:api.FacebookClient.UserId,accessToken:api.FacebookClient.AccessToken):scala.concurrent.Future[api.FacebookClient.UserFeed]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">feed</span><span class="params">(<span name="userId">userId: <a href="FacebookClient$.html#UserId=domain.FacebookUserId" class="extmbr" name="api.FacebookClient.UserId">UserId</a></span>, <span name="accessToken">accessToken: <a href="FacebookClient$.html#AccessToken=domain.oauth.FacebookAccessToken" class="extmbr" name="api.FacebookClient.AccessToken">AccessToken</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<a href="FacebookClient$.html#UserFeed=domain.feed.FacebookUserFeed" class="extmbr" name="api.FacebookClient.UserFeed">UserFeed</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">userId</dt><dd class="cmt"><p>Facebook user id</p></dd><dt class="param">accessToken</dt><dd class="cmt"><p>User access token</p></dd><dt>returns</dt><dd class="cmt"><p>Facebook user feed</p></dd></dl></div>
+    </li><li name="api.FacebookClient#feedEither" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="feedEither(userId:api.FacebookClient.UserId,accessToken:api.FacebookClient.AccessToken):api.FacebookClient.AsyncUserFeed"></a><a id="feedEither(UserId,AccessToken):AsyncUserFeed"></a>
+      <span class="permalink">
+      <a href="../api/FacebookClient.html#feedEither(userId:api.FacebookClient.UserId,accessToken:api.FacebookClient.AccessToken):api.FacebookClient.AsyncUserFeed" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">feedEither</span><span class="params">(<span name="userId">userId: <a href="FacebookClient$.html#UserId=domain.FacebookUserId" class="extmbr" name="api.FacebookClient.UserId">UserId</a></span>, <span name="accessToken">accessToken: <a href="FacebookClient$.html#AccessToken=domain.oauth.FacebookAccessToken" class="extmbr" name="api.FacebookClient.AccessToken">AccessToken</a></span>)</span><span class="result">: <a href="FacebookClient$.html#AsyncUserFeed=scala.concurrent.Future[Either[api.FacebookClient.TokenError,api.FacebookClient.UserFeed]]" class="extmbr" name="api.FacebookClient.AsyncUserFeed">AsyncUserFeed</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">userId</dt><dd class="cmt"><p>Facebook user id</p></dd><dt class="param">accessToken</dt><dd class="cmt"><p>Facebook user access token with &quot;user_posts&quot; permission</p></dd><dt>returns</dt><dd class="cmt"><p>Facebook user feed</p></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
